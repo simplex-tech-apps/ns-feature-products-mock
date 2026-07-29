@@ -1,5 +1,5 @@
 //
-//  ProductsView.swift
+//  ProductListView.swift
 //  NSFeatureProducts
 //
 //  Created by apple on 07/07/26.
@@ -9,12 +9,12 @@ import SwiftUI
 import SwiftData
 import NammaAppUI
 
-struct ProductsView: View {
+struct ProductListView: View {
     //MARK: Observed Properties
-    var productsViewModel: ProductsViewModel
+    var productListViewModel: ProductListViewModel
     
     var body: some View {
-        Text("Feature Products")
+        Text("Product List")
     }
 }
 

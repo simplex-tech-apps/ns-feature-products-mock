@@ -9,108 +9,78 @@ import SwiftData
 import SwiftUI
 import NammaAppUI
 
+// MARK: - Feature Routes
+public enum ProductCoordinatorPage: Hashable {
+    case productList
+    case productDetail
+    case productSearch
+}
+
+public enum ProductsCoordinatorSheet: String, Identifiable {
+    public var id: String { rawValue }
+    case filter
+}
+
+public enum ProductsCoordinatorCover: String, Identifiable {
+    public var id: String { rawValue }
+    case scanner
+}
+
+// MARK: - View Factory
 @MainActor
-struct ProductsViewFactory {
-    @ViewBuilder
-    func buildPage(_ page: ProductsCoordinatorPage) -> some View {
-        switch page {
-        case .landingPage(let productsViewModel):
-            ProductsView(productsViewModel: productsViewModel)
-        }
-    }
-    
-    @ViewBuilder
-    func buildSheet(_ sheet: ProductsCoordinatorSheet) -> some View {
-        EmptyView()
-    }
-    
-    @ViewBuilder
-    func buildCover(_ cover: ProductsCoordinatorCover) -> some View {
-        EmptyView()
-    }
-}
-
-enum ProductsCoordinatorPage: Hashable {
-    case landingPage(ProductsViewModel)
-}
-
-enum ProductsCoordinatorSheet: String, Identifiable {
-    var id: String { rawValue }
-    case noSheet
-}
-
-enum ProductsCoordinatorCover: String, Identifiable {
-    var id: String { rawValue }
-    case noCover
-}
-
-extension EnvironmentValues {
-    @Entry var ProductsCoordinator: ProductsCoordinator?
-    @Entry var ProductsViewModel: ProductsViewModel?
-}
-
-@Observable
-class ProductsCoordinator: NSObject {
-    var path: NavigationPath = NavigationPath()
-    var sheet: ProductsCoordinatorSheet?
-    var cover: ProductsCoordinatorCover?
-    private(set) var currenScreen: [ProductsCoordinatorPage] = []
-    
-    func push(page: ProductsCoordinatorPage) {
-        currenScreen.append(page)
-        path.append(page)
-    }
-    
-    func pop(_ last: Int = 1) {
-        currenScreen.removeLast()
-        path.removeLast(last)
-    }
-    
-    func popToRoot() {
-        currenScreen.removeAll()
-        path.removeLast(path.count)
-    }
-    
-    func present(sheet: ProductsCoordinatorSheet) {
-        self.sheet = sheet
-    }
-    
-    func present(cover: ProductsCoordinatorCover) {
-        self.cover = cover
-    }
-    
-    func popSheet() {
-        withAnimation(.spring()) {
-            self.sheet = nil
-        }
-    }
-    
-    func popCover() {
-        self.cover = nil
-    }
-}
-
-public struct ProductsCoordinatorView: View {
-    @State
-    private var productsCoordinator = ProductsCoordinator()
-    @State
-    private var productsViewModel: ProductsViewModel = ProductsViewModel()
-    @State
-    private var appTheme = AppThemeManager.shared
-    
-    let productsViewFactory: ProductsViewFactory = ProductsViewFactory()
-    
+public struct ProductViewFactory {
     public init() {}
     
-    public var body: some View {
-        productsViewFactory.buildPage(.landingPage(productsViewModel))
-            .navigationDestination(for: ProductsCoordinatorPage.self) {
-                productsViewFactory.buildPage($0)
-            }
-            .sheet(item: $productsCoordinator.sheet) { productsViewFactory.buildSheet($0).presentationBackground(appTheme.current.secondary).presentationDetents([.medium]).presentationCornerRadius(24)
-            }
-            .fullScreenCover(item: $productsCoordinator.cover) {
-                productsViewFactory.buildCover($0)
-            }
+    @ViewBuilder
+    public func buildPage(_ page: ProductCoordinatorPage) -> some View {
+        switch page {
+        case .productList:
+            let viewModel = ProductListViewModel()
+            ProductListView(productListViewModel: viewModel)
+            
+        case .productDetail:
+            let viewModel = ProductListViewModel()
+            ProductDetailView(productDetailViewModel: viewModel)
+            
+        case .productSearch:
+            let viewModel = ProductListViewModel()
+            ProductSearchView(productSearchViewModel: viewModel)
+        }
+    }
+    
+    @ViewBuilder
+    public func buildSheet(_ sheet: ProductsCoordinatorSheet) -> some View {
+        switch sheet {
+        case .filter:
+            Text("Test")
+        }
+    }
+    
+    @ViewBuilder
+    public func buildCover(_ cover: ProductsCoordinatorCover) -> some View {
+        switch cover {
+        case .scanner:
+            Text("Test")
+        }
+    }
+}
+
+@MainActor
+public struct ProductsCoordinatorView {
+    private static let factory = ProductViewFactory()
+    
+    @ViewBuilder
+    public static func buildDestination(for route: ProductCoordinatorPage) -> some View {
+        factory.buildPage(route)
+    }
+    
+    @ViewBuilder
+    public static func buildSheet(for sheet: ProductsCoordinatorSheet) -> some View {
+        factory.buildSheet(sheet)
+    }
+    
+    @ViewBuilder
+    public static func buildCover(for cover: ProductsCoordinatorCover) -> some View {
+        factory.buildCover(cover)
     }
 }
