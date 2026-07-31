@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/simplex-tech-apps/ns-core-design-system.git",
       "state" : {
-        "revision" : "4578121fd53c82b52253e08d90b206663b40d2a4",
-        "version" : "3.0.3"
+        "revision" : "fa76db4ad8cae27439e4576f45c2895bca35bff0",
+        "version" : "3.0.5"
       }
     }
   ],

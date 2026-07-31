@@ -66,11 +66,11 @@ public struct ProductViewFactory {
 }
 
 @MainActor
-public struct ProductsCoordinatorView {
+public struct ProductsCoordinator {
     private static let factory = ProductViewFactory()
     
     @ViewBuilder
-    public static func buildDestination(for route: ProductCoordinatorPage) -> some View {
+    public static func buildPage(for route: ProductCoordinatorPage) -> some View {
         factory.buildPage(route)
     }
     
