@@ -9,15 +9,6 @@ import SwiftUI
 import SwiftData
 import NammaAppUI
 
-struct ProductListView: View {
-    //MARK: Observed Properties
-    var productListViewModel: ProductListViewModel
-    
-    var body: some View {
-        Text("Product List")
-    }
-}
-
 import SwiftUI
 
 // MARK: - Models
@@ -51,7 +42,9 @@ struct BrandItem: Identifiable {
 }
 
 // MARK: - Main Screen View
-public struct CategoryProductsScreenView: View {
+public struct ProductListView: View {
+    //MARK: Observed Properties
+    var productListViewModel: ProductListViewModel
     
     let filters = ["Filters", "Sort", "Price", "Brand", "Colour", "Design", "Closure"]
     let categories = [
@@ -149,7 +142,8 @@ public struct CategoryProductsScreenView: View {
     @State private var selectedFilter = "Filters"
     @State private var selectedCategory: NATabbarViewV3Model
     
-    init() {
+    init(productListViewModel: ProductListViewModel) {
+        self.productListViewModel = productListViewModel
         self._selectedCategory = State(initialValue: categories.first!)
     }
     
@@ -236,7 +230,7 @@ struct SidebarCategoryCellView: View {
 }
 
 // MARK: - Subviews Breakdown
-private extension CategoryProductsScreenView {
+private extension ProductListView {
 
     var navigationHeaderView: some View {
         HStack(alignment: .center, spacing: 0) {
@@ -345,11 +339,8 @@ struct ProductGridCardView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            
-            // Image Top Area with Wishlist & Add Button
             ZStack(alignment: .topTrailing) {
-                
-                // Image Background Container
+
                 ZStack(alignment: .bottomLeading) {
                     RoundedRectangle(cornerRadius: 12)
                         .fill(Color.gray.opacity(0.1))
@@ -361,8 +352,7 @@ struct ProductGridCardView: View {
                         .frame(width: 40)
                         .foregroundColor(.gray.opacity(0.4))
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    
-                    // Quantity Tag Overlay (Bottom Left)
+
                     Text(product.packInfo)
                         .font(.system(size: 10, weight: .bold))
                         .foregroundColor(.black)
@@ -373,7 +363,6 @@ struct ProductGridCardView: View {
                         .padding(6)
                 }
                 
-                // Favorite Heart Button (Top Right)
                 Button(action: { product.isFavorite.toggle() }) {
                     Image(systemName: product.isFavorite ? "heart.fill" : "heart")
                         .font(.system(size: 12, weight: .semibold))
@@ -383,8 +372,7 @@ struct ProductGridCardView: View {
                         .clipShape(Circle())
                 }
                 .padding(6)
-                
-                // ADD Button (Bottom Right)
+
                 VStack {
                     Spacer()
                     HStack {
@@ -408,7 +396,6 @@ struct ProductGridCardView: View {
                 }
             }
             
-            // Price Details
             HStack(spacing: 4) {
                 Text("₹\(product.currentPrice)")
                     .font(.system(size: 13, weight: .bold))
@@ -424,8 +411,7 @@ struct ProductGridCardView: View {
                     .strikethrough()
             }
             .padding(.top, 4)
-            
-            // Discount Text
+
             if let badge = product.discountBadge {
                 Text("Price Drop")
                     .font(.system(size: 10, weight: .bold))
@@ -435,8 +421,7 @@ struct ProductGridCardView: View {
                     .font(.system(size: 10, weight: .semibold))
                     .foregroundColor(.blue)
             }
-            
-            // Product Title
+
             Text(product.title)
                 .font(.system(size: 11, weight: .medium))
                 .foregroundColor(.black.opacity(0.9))
@@ -444,7 +429,6 @@ struct ProductGridCardView: View {
                 .multilineTextAlignment(.leading)
                 .fixedSize(horizontal: false, vertical: true)
             
-            // Tag Pill (e.g. "Free Size")
             if let tag = product.tagText {
                 Text(tag)
                     .font(.system(size: 9, weight: .bold))
@@ -454,8 +438,7 @@ struct ProductGridCardView: View {
                     .background(Color.green.opacity(0.12))
                     .clipShape(RoundedRectangle(cornerRadius: 3))
             }
-            
-            // Rating and Stats
+
             HStack(spacing: 4) {
                 Image(systemName: "play.circle.fill")
                     .font(.system(size: 9))
@@ -466,8 +449,7 @@ struct ProductGridCardView: View {
                     .foregroundColor(.secondary)
                     .lineLimit(1)
             }
-            
-            // Delivery Estimate
+
             HStack(spacing: 3) {
                 Image(systemName: "timer")
                     .font(.system(size: 9))
@@ -484,5 +466,5 @@ struct ProductGridCardView: View {
 
 // MARK: - Preview
 #Preview {
-    CategoryProductsScreenView()
+    ProductListView(productListViewModel: ProductListViewModel())
 }

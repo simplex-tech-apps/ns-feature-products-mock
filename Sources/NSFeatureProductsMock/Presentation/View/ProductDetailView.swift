@@ -4,6 +4,12 @@
 //
 //  Created by apple on 18/07/26.
 //
+//
+//  ProductsDetailView.swift
+//  NSFeatureProductsMock
+//
+//  Created by apple on 18/07/26.
+//
 
 import SwiftUI
 import SwiftData
@@ -25,9 +31,10 @@ public struct ProductDetailView: View {
     // MARK: Observed Properties
     var productDetailViewModel: ProductListViewModel
     
+    @Environment(\.dismiss) private var dismiss
+    
     @State private var topSafeArea: CGFloat = 0
     @State private var scrollOffset: CGFloat = 0
-    @State private var initialMinY: CGFloat? = nil
     
     @State private var isHighlightsExpanded: Bool = true
     @State private var isInformationExpanded: Bool = true
@@ -110,20 +117,13 @@ public struct ProductDetailView: View {
             ScrollView(.vertical, showsIndicators: false) {
                 VStack(spacing: 0) {
                     GeometryReader { geo in
-                        let currentGlobalY = geo.frame(in: .global).minY
-                        Color.clear.onAppear {
-                            if initialMinY == nil {
-                                initialMinY = currentGlobalY
-                            }
-                        }
-                        .onChange(of: currentGlobalY) { _, newValue in
-                            if let initial = initialMinY {
-                                self.scrollOffset = initial - newValue
-                            }
+                        let minY = geo.frame(in: .named("productDetailScroll")).minY
+                        Color.clear.onChange(of: minY) { _, newValue in
+                            self.scrollOffset = -newValue
                         }
                     }
                     .frame(height: 0)
-                    
+
                     parallaxHeaderCarousel
                     
                     VStack(spacing: 12) {
@@ -147,17 +147,19 @@ public struct ProductDetailView: View {
                     .padding(.top, 12)
                 }
             }
+            .coordinateSpace(name: "productDetailScroll")
             .contentMargins(.top, 0, for: .scrollContent)
             .ignoresSafeArea(edges: .top)
             .scrollBounceBehavior(.basedOnSize)
             .background(Color(uiColor: .systemGroupedBackground).opacity(0.4))
-                    
+            
             animatedNavigationBar
 
             bottomStickyCTA
                 .frame(maxHeight: .infinity, alignment: .bottom)
         }
         .toolbar(.hidden, for: .navigationBar)
+        .navigationBarBackButtonHidden(true)
         .ignoresSafeArea(.all, edges: [.top, .bottom])
         .onAppear {
             if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
@@ -170,6 +172,7 @@ public struct ProductDetailView: View {
 
 // MARK: - Subviews Breakdown
 private extension ProductDetailView {
+
     var parallaxHeaderCarousel: some View {
         let pullDistance = max(0, -scrollOffset)
         let totalHeight = baseCarouselHeight + topSafeArea + pullDistance
@@ -184,9 +187,7 @@ private extension ProductDetailView {
     }
     
     var headerProgress: CGFloat {
-        let rawProgress = (
-            scrollOffset - headerStartThreshold
-        ) / headerTransitionDistance
+        let rawProgress = (scrollOffset - headerStartThreshold) / headerTransitionDistance
         return min(max(rawProgress, 0.0), 1.0)
     }
     
@@ -195,7 +196,8 @@ private extension ProductDetailView {
         
         return VStack(spacing: 0) {
             HStack(spacing: 12) {
-                Button(action: { }) {
+                
+                Button(action: { dismiss() }) {
                     Image(systemName: "chevron.left")
                         .font(.system(size: 16, weight: .medium))
                         .foregroundColor(.black)
@@ -257,7 +259,6 @@ private extension ProductDetailView {
                                 .fill(Color.white.opacity(0.9 * (1 - progress)))
                         )
                 }
-
             }
             .padding(.horizontal, 16)
             .padding(.top, topSafeArea > 0 ? topSafeArea : 44)
@@ -477,7 +478,7 @@ private extension ProductDetailView {
                             .frame(width: 90, alignment: .leading)
                         
                         Text(
-                            "The onion (Allium cepa) is a fundamental subterranean bulb vegetable belonging to the Amaryllidaceae family and the genus Allium, which also encompasses garlic, shallots, leeks, and chives. As one of the world's oldest cultivated crops, it serves as a primary culinary cornerstone across nearly all global food cultures due to its unique aromatic properties and ability to build rich flavor foundations. Botanically, the plant is a biennial typically grown as an annual, whose edible bulb is formed by modified, compressed stem structures surrounded by thick, fleshy, concentric leaf sheaths that store water and nutrients. Onion cultivars are primarily grouped by photoperiod sensitivity—classified into short-day, intermediate-day, and long-day varieties based on the hours of daylight required to initiate bulb formation—as well as distinct commercial profiles such as sharp white onions, sweet and versatile yellow onions, and vibrant red onions rich in anthocyanins.\nBeyond its physical versatility, the onion is renowned for its distinctive chemistry and health-promoting profile. When sliced or crushed, enzyme reactions convert amino acid sulfoxides into volatile sulfur compounds like syn-propanethial-S-oxide, which interact with moisture in the eyes to stimulate tear production as a protective plant defense mechanism. Cooking transforms these sharp organosulfur compounds, triggering Maillard reactions and caramelization that convert complex carbohydrates into simple sugars, yielding a deep, savory sweetness. Nutritionally, onions are low in calories while offering an exceptional supply of Vitamin C, Vitamin B6, folate, and dietary fiber, particularly prebiotic inulin and fructooligosaccharides that nourish beneficial gut bacteria. Coupled with high concentrations of the potent antioxidant flavonoid quercetin, the onion remains both a foundational culinary staple and a nutritionally dense vegetable integral to human health and gastronomy."
+                            "The onion (Allium cepa) is a fundamental subterranean bulb vegetable belonging to the Amaryllidaceae family and the genus Allium..."
                         )
                         .font(.system(size: 11))
                         .foregroundColor(.black.opacity(0.8))
