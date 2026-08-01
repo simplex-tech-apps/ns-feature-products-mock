@@ -228,7 +228,7 @@ struct ProductSearchView: View {
 private extension ProductSearchView {
     var defaultDiscoveryView: some View {
         ScrollView(.vertical, showsIndicators: false) {
-            VStack(alignment: .leading, spacing: 20) {
+            VStack(alignment: .leading, spacing: 12) {
                 ReusableHeaderView(
                     style: .action(
                         title: "Recent Searches",
